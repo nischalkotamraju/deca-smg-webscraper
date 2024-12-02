@@ -1,9 +1,13 @@
 from openai import OpenAI
 from gather_yahoo_finance import gather_yahoo_finance
 from get_graph import get_graph
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 client = OpenAI(
-    api_key="sk-Ds4rhJadzPqLoWHIedasoqkDU09npo9tlNwlsr8EF4T3BlbkFJXaOfTlty0BZ-mM34WNoLfBjIYf6kZXV4aXZlpFabEA"
+    api_key=os.getenv("OPENAI_API_KEY"),
 )
 
 def analyze_stock(ticker, isHolding):
