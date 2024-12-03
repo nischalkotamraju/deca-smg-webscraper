@@ -1,13 +1,25 @@
 def gather_yahoo_finance(query):
     import yfinance as yf
     import pandas as pd
+    from datetime import datetime
     
     try:
         ticker = yf.Ticker(query)
         info = ticker.info
         history = ticker.history(period="1mo")
-
-        data = {
+        
+        news = ticker.news
+        
+        news_data = []
+        for article in news:
+            news_data.append({
+                'Title': article.get('title'),
+                'Publisher': article.get('publisher'),
+                'Link': article.get('link'),
+                'Published': datetime.fromtimestamp(article.get('providerPublishTime')).strftime('%Y-%m-%d %H:%M:%S')
+            })
+        
+        financial_data = {
             "Symbol": query,
             "Company Name": info.get('longName', 'N/A'),
             "Current Price": info.get('currentPrice', 'N/A'),
@@ -22,7 +34,17 @@ def gather_yahoo_finance(query):
             "1 Month Return": ((history['Close'].iloc[-1] / history['Close'].iloc[0]) - 1) * 100
         }
         
-        return pd.DataFrame([data])
+        financial_df = pd.DataFrame([financial_data])
+        news_df = pd.DataFrame(news_data)
+        
+        return {
+            'financial_data': financial_df,
+            'news_data': news_df
+        }
+        
     except Exception as e:
         print(f"Error fetching data for {query}: {str(e)}")
-        return pd.DataFrame()
+        return {
+            'financial_data': pd.DataFrame(),
+            'news_data': pd.DataFrame()
+        }
